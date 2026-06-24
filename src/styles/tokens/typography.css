@@ -1,0 +1,27 @@
+/* RoadControl — Typography tokens
+   Space Grotesk = display + numbers (the number is the protagonist).
+   Inter = interface + running text. */
+:root {
+  --font-display: "Space Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans:    "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-number:  "Space Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* weights */
+  --fw-regular: 400; /* @kind font */
+  --fw-medium: 500; /* @kind font */
+  --fw-semibold: 600; /* @kind font */
+  --fw-bold: 700; /* @kind font */
+
+  /* type scale (size / line-height) — product scale from brand manual */
+  --text-display-size: 32px;  --text-display-lh: 40px;   /* Space Grotesk SemiBold */
+  --text-h1-size: 24px;       --text-h1-lh: 32px;        /* Space Grotesk Medium */
+  --text-h2-size: 20px;       --text-h2-lh: 28px;        /* Inter SemiBold */
+  --text-h3-size: 16px;       --text-h3-lh: 24px;        /* Inter Medium */
+  --text-body-size: 16px;     --text-body-lh: 24px;      /* Inter Regular */
+  --text-support-size: 14px;  --text-support-lh: 20px;   /* Inter Regular */
+  --text-caption-size: 12px;  --text-caption-lh: 16px;   /* Inter Medium */
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;   /* eyebrows / overline labels, uppercase */
+}

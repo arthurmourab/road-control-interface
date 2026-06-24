@@ -1,0 +1,44 @@
+/* RoadControl — Spacing, radius, shadow, motion tokens.
+   8px corner radius for components, 12–16px for cards. Contained motion, subtle transitions. */
+:root {
+  /* spacing scale (4px base) */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;    /* components (buttons, inputs) */
+  --radius-lg: 12px;   /* cards */
+  --radius-xl: 16px;   /* large cards / panels */
+  --radius-2xl: 22px;  /* app-icon style */
+  --radius-pill: 999px;
+
+  /* shadows — soft, navy-tinted, never harsh */
+  --shadow-xs: 0 1px 2px rgba(14, 27, 44, 0.06);
+  --shadow-sm: 0 1px 3px rgba(14, 27, 44, 0.08), 0 1px 2px rgba(14, 27, 44, 0.04);
+  --shadow-md: 0 4px 12px rgba(14, 27, 44, 0.08), 0 2px 4px rgba(14, 27, 44, 0.04);
+  --shadow-lg: 0 12px 28px rgba(14, 27, 44, 0.12), 0 4px 8px rgba(14, 27, 44, 0.05);
+  --shadow-amber: 0 4px 14px rgba(255, 159, 28, 0.32);
+  --ring-focus: 0 0 0 3px rgba(43, 127, 255, 0.4);
+
+  /* motion — contained, subtle, never showy */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --dur-fast: 120ms; /* @kind other */
+  --dur-base: 200ms; /* @kind other */
+  --dur-slow: 320ms; /* @kind other */
+
+  /* layout */
+  --container-max: 1200px;
+  --sidebar-width: 248px;
+}

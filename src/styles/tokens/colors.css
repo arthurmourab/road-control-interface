@@ -1,0 +1,79 @@
+/* RoadControl — Color tokens
+   Palette is lean and functional. Each color has one clear role.
+   Proportion of use: ~60% neutrals, ~30% Ink Navy structure, ~10% Signal Amber accent. */
+:root {
+  /* ---- Brand core ---- */
+  --ink-navy: #0E1B2C;      /* base, text, structure, dark surfaces */
+  --signal-amber: #FF9F1C;  /* brand color, accent, action, attention */
+  --go-green: #16B981;      /* positive states: success, approved, on-budget */
+  --slate: #5C6B7A;         /* secondary text, neutral icons, borders */
+  --mist: #F5F7F9;          /* screen backgrounds, cards, breathing room */
+
+  /* ---- Amber scale (derived) ---- */
+  --amber-700: #C4760A;
+  --amber-600: #E58510;
+  --amber-500: #FF9F1C;     /* Signal Amber */
+  --amber-400: #FFB347;
+  --amber-100: #FFE9C7;
+  --amber-50:  #FFF6E9;
+
+  /* ---- Green scale (derived) ---- */
+  --green-700: #0E8E62;
+  --green-500: #16B981;     /* Go Green */
+  --green-100: #D2F4E7;
+  --green-50:  #E9FAF3;
+
+  /* ---- Red (support — errors, destructive) ---- */
+  --red-600: #B5341F;
+  --red-500: #D8442E;
+  --red-100: #F8DAD3;
+  --red-50:  #FDF0ED;
+
+  /* ---- Neutral scale (derived from Ink Navy) ---- */
+  --gray-900: #0E1B2C;  /* primary text */
+  --gray-800: #1B2A3B;
+  --gray-700: #33424F;  /* strong text */
+  --gray-600: #45535F;
+  --gray-500: #5C6B7A;  /* secondary text (Slate) */
+  --gray-400: #8A97A2;
+  --gray-300: #C3CCD4;  /* borders, dividers */
+  --gray-200: #D9DFE4;
+  --gray-100: #E8ECEF;  /* subtle lines */
+  --gray-50:  #F5F7F9;  /* background (Mist) */
+  --white:    #FFFFFF;
+
+  /* ---- Semantic aliases ---- */
+  --text-primary:   var(--gray-900);
+  --text-strong:    var(--gray-700);
+  --text-secondary: var(--gray-500);
+  --text-muted:     var(--gray-400);
+  --text-on-dark:   #FFFFFF;
+  --text-on-amber:  var(--ink-navy);     /* never white on amber */
+  --text-inverse:   #FFFFFF;
+  --text-accent:    var(--amber-700);    /* amber-as-text needs the dark step */
+
+  --surface-page:    var(--mist);
+  --surface-card:    var(--white);
+  --surface-sunken:  var(--gray-50);
+  --surface-inverse: var(--ink-navy);
+  --surface-amber:   var(--amber-50);
+  --surface-green:   var(--green-50);
+  --surface-red:     var(--red-50);
+
+  --border-subtle:   var(--gray-100);
+  --border-default:  var(--gray-300);
+  --border-strong:   var(--gray-500);
+
+  --action-primary:        var(--signal-amber);
+  --action-primary-hover:  var(--amber-600);
+  --action-primary-press:  var(--amber-700);
+  --action-on-primary:     var(--ink-navy);
+
+  --status-success: var(--go-green);
+  --status-success-strong: var(--green-700);
+  --status-attention: var(--signal-amber);
+  --status-error: var(--red-500);
+  --status-error-strong: var(--red-600);
+
+  --focus-ring: #2B7FFF;
+}

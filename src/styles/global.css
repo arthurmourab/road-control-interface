@@ -1,0 +1,143 @@
+/* RoadControl — entrada global de estilos.
+   Importa os tokens do design system e define o reset/base da aplicação. */
+@import "./tokens/fonts.css";
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--surface-page);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}
+
+/* Scrollbar discreta, alinhada à paleta da marca */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 999px;
+  border: 3px solid var(--surface-page);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* Itens de navegação da sidebar (escura). Ativo vence o hover. */
+.rc-nav-link {
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 500;
+  transition: background 120ms;
+}
+.rc-nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.rc-nav-link.active {
+  background: rgba(255, 159, 28, 0.14);
+  color: var(--signal-amber);
+  font-weight: 600;
+}
+
+/* Login: em telas estreitas, esconde o painel da marca e usa coluna única. */
+@media (max-width: 860px) {
+  .rc-login {
+    grid-template-columns: 1fr !important;
+  }
+  .rc-login-brand {
+    display: none !important;
+  }
+}
+
+/* Grids dos dashboards: empilham em telas menores. */
+@media (max-width: 1024px) {
+  .rc-2col {
+    grid-template-columns: 1fr !important;
+  }
+  .rc-stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 560px) {
+  .rc-stat-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Keyframes usados pelos componentes de UI (modal, toast, skeleton, telas) */
+@keyframes rcSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes rcShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+@keyframes rcFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes rcModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes rcToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes rcScreenIn {
+  from {
+    transform: translateY(6px);
+    opacity: 0.6;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}

@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Config pessoal do Claude Code — o restante da pasta .claude é versionado
+.claude/settings.local.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

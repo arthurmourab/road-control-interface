@@ -21,6 +21,7 @@ import {
   useUpdateGasStation,
 } from '@/api/gasStations'
 import { useOrganizations } from '@/api/organizations'
+import { CepNotFoundError, useCepLookup } from '@/api/cep'
 import type { GasStation, UpdateGasStation } from '@/types/models'
 import { formatCep, formatCnpj } from '@/lib/format'
 import { tableState } from '@/lib/tableState'
@@ -201,12 +202,46 @@ function StationForm({ data, onClose }: { data: { mode: 'create' | 'edit'; stati
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [addOrg, setAddOrg] = useState('')
   const [removeOrg, setRemoveOrg] = useState<number | null>(null)
+  // Em edição, a busca só dispara depois que o usuário mexer no CEP —
+  // evita sobrescrever/limpar o endereço já salvo ao abrir o modal.
+  const [cepDirty, setCepDirty] = useState(false)
+  // Campos que a última busca do ViaCEP devolveu vazios (CEP único de município):
+  // ficam liberados para preenchimento manual. Cidade/UF sempre vêm preenchidos.
+  const [unlocked, setUnlocked] = useState({ street: false, neighborhood: false })
 
   useEffect(() => {
     setErrors({})
   }, [data])
 
   const set = (k: keyof StationFormState, v: string | boolean) => setF((s) => ({ ...s, [k]: v }))
+
+  const cepLookup = useCepLookup(f.zipCode, { enabled: !isEdit || cepDirty })
+
+  // Sucesso da busca: preenche logradouro/bairro/cidade/UF e limpa o erro do CEP.
+  // Campos que o ViaCEP devolveu vazios são liberados para edição manual.
+  useEffect(() => {
+    if (!cepLookup.data) return
+    const a = cepLookup.data
+    setF((s) => ({ ...s, street: a.street, neighborhood: a.neighborhood, city: a.city, state: a.state }))
+    setUnlocked({ street: !a.street, neighborhood: !a.neighborhood })
+    setErrors((e) => ({ ...e, zipCode: '', city: '', state: '', street: '', neighborhood: '' }))
+  }, [cepLookup.data])
+
+  // Falha da busca: limpa os campos preenchidos e mostra erro amigável no CEP.
+  useEffect(() => {
+    if (!cepLookup.isError) return
+    setF((s) => ({ ...s, street: '', neighborhood: '', city: '', state: '' }))
+    setUnlocked({ street: false, neighborhood: false })
+    setErrors((e) => ({
+      ...e,
+      street: '',
+      neighborhood: '',
+      zipCode:
+        cepLookup.error instanceof CepNotFoundError
+          ? 'CEP não encontrado.'
+          : 'Não foi possível consultar o CEP. Tente novamente.',
+    }))
+  }, [cepLookup.isError, cepLookup.error])
 
   const orgsById = useMemo(
     () => new Map((orgsQuery.data?.results ?? []).map((o) => [o.id, o.name])),
@@ -220,8 +255,16 @@ function StationForm({ data, onClose }: { data: { mode: 'create' | 'edit'; stati
     if (!f.name) e.name = 'Informe o nome.'
     const digits = f.cnpj.replace(/\D/g, '')
     if (digits.length !== 14) e.cnpj = 'CNPJ deve ter 14 dígitos.'
-    if (!f.city) e.city = 'Informe a cidade.'
-    if (!f.state) e.state = 'UF.'
+    const cepDigits = f.zipCode.replace(/\D/g, '')
+    if (cepDigits.length !== 8) e.zipCode = 'Informe um CEP válido (8 dígitos).'
+    else if (cepLookup.isFetching) e.zipCode = 'Aguarde a busca do endereço.'
+    else if (cepLookup.isError) e.zipCode = errors.zipCode || 'Não foi possível consultar o CEP. Tente novamente.'
+    // Salvaguarda: cidade/UF vêm da busca do CEP; vazios indicam busca não concluída.
+    if (!e.zipCode && !f.city) e.city = 'Informe a cidade.'
+    if (!e.zipCode && !f.state) e.state = 'UF.'
+    // Campos liberados para preenchimento manual (ViaCEP os devolveu vazios) são obrigatórios.
+    if (unlocked.street && !f.street) e.street = 'Informe o logradouro.'
+    if (unlocked.neighborhood && !f.neighborhood) e.neighborhood = 'Informe o bairro.'
     setErrors(e)
     if (Object.keys(e).length) return
 
@@ -312,15 +355,42 @@ function StationForm({ data, onClose }: { data: { mode: 'create' | 'edit'; stati
           <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: '0.03em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 14 }}>
             Endereço
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 18, marginBottom: 18 }}>
-            <Input label="Logradouro" placeholder="Av. das Nações Unidas" value={f.street} onChange={(e) => set('street', e.target.value)} />
-            <Input label="Número" placeholder="12500" value={f.number} onChange={(e) => set('number', e.target.value)} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 18, marginBottom: 18 }}>
+            <Input
+              label="CEP"
+              numeric
+              placeholder="00000-000"
+              value={f.zipCode}
+              error={errors.zipCode}
+              hint={cepLookup.isFetching ? 'Buscando endereço…' : 'O endereço é preenchido pelo CEP.'}
+              onChange={(e) => {
+                setCepDirty(true)
+                set('zipCode', formatCep(e.target.value))
+              }}
+            />
+            <Input
+              label="Logradouro"
+              placeholder="Av. das Nações Unidas"
+              value={f.street}
+              error={errors.street}
+              disabled={!unlocked.street}
+              hint={unlocked.street ? 'CEP sem logradouro — preencha manualmente.' : undefined}
+              onChange={(e) => set('street', e.target.value)}
+            />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.4fr 0.6fr 1fr', gap: 18 }}>
-            <Input label="Bairro" placeholder="Brooklin" value={f.neighborhood} onChange={(e) => set('neighborhood', e.target.value)} />
-            <Input label="Cidade" placeholder="São Paulo" value={f.city} error={errors.city} onChange={(e) => set('city', e.target.value)} />
-            <Input label="UF" placeholder="SP" value={f.state} error={errors.state} onChange={(e) => set('state', e.target.value.toUpperCase().slice(0, 2))} />
-            <Input label="CEP" numeric placeholder="00000-000" value={f.zipCode} onChange={(e) => set('zipCode', formatCep(e.target.value))} />
+          <div style={{ display: 'grid', gridTemplateColumns: '0.7fr 1.4fr 1.4fr 0.5fr', gap: 18 }}>
+            <Input label="Número" placeholder="12500" value={f.number} onChange={(e) => set('number', e.target.value)} />
+            <Input
+              label="Bairro"
+              placeholder="Brooklin"
+              value={f.neighborhood}
+              error={errors.neighborhood}
+              disabled={!unlocked.neighborhood}
+              hint={unlocked.neighborhood ? 'CEP sem bairro — preencha manualmente.' : undefined}
+              onChange={(e) => set('neighborhood', e.target.value)}
+            />
+            <Input label="Cidade" placeholder="São Paulo" value={f.city} error={errors.city} disabled />
+            <Input label="UF" placeholder="SP" value={f.state} error={errors.state} disabled />
           </div>
         </div>
 

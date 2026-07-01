@@ -5,7 +5,6 @@ import {
   ConfirmDialog,
   DataTable,
   PageHeader,
-  RoleBadge,
   SearchInput,
   StatusBadge,
   toast,
@@ -28,7 +27,12 @@ export function DriversList() {
   const query = useUsers({ pageSize: 1000 })
   const setStatus = useSetUserStatus()
 
-  const all = useMemo(() => query.data?.results ?? [], [query.data])
+  // Só motoristas: o endpoint devolve todos os usuários da organização
+  // (inclusive o próprio gestor), mas esta tela gerencia apenas Drivers.
+  const all = useMemo(
+    () => (query.data?.results ?? []).filter((u) => u.role === 'Driver'),
+    [query.data],
+  )
   const filtered = useMemo(() => {
     if (!q) return all
     const s = q.toLowerCase()
@@ -63,7 +67,6 @@ export function DriversList() {
       ),
     },
     { key: 'email', header: 'E-mail', render: (u) => <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{u.email}</span> },
-    { key: 'role', header: 'Papel', render: (u) => <RoleBadge role={u.role} /> },
     { key: 'status', header: 'Status', render: (u) => <StatusBadge active={u.isActive} /> },
     {
       key: 'actions',
@@ -122,7 +125,7 @@ export function DriversList() {
         rowKey={(u) => u.id}
         emptyProps={{
           icon: 'users',
-          title: q ? 'Nenhum usuário encontrado' : 'Nenhum motorista cadastrado',
+          title: q ? 'Nenhum motorista encontrado' : 'Nenhum motorista cadastrado',
           body: q ? 'Tente outra busca.' : 'Cadastre os motoristas para que eles possam registrar abastecimentos.',
         }}
       />

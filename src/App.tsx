@@ -1,6 +1,7 @@
 // Roteamento da aplicação, com guarda de autenticação e autorização por papel.
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { LoginPage } from '@/features/auth/LoginPage'
+import { ProfilePage } from '@/features/auth/ProfilePage'
 import { AppLayout } from '@/components/shell/AppLayout'
 import { HomeRedirect, RequireAuth, RequireRole } from '@/components/shell/guards'
 import { AdminDashboard } from '@/features/admin/AdminDashboard'
@@ -22,6 +23,9 @@ export function App() {
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
           <Route index element={<HomeRedirect />} />
+
+          {/* Perfil: qualquer papel logado; acesso pelo Topbar (sem item de navegação) */}
+          <Route path="profile" element={<ProfilePage />} />
 
           {/* Administrador da plataforma */}
           <Route element={<RequireRole roles={['SystemAdmin']} />}>

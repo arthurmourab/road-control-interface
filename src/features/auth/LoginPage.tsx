@@ -4,8 +4,10 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Button, Icon, Input } from '@/components/ds'
+import { Alert, Button, Icon, Input } from '@/components/ds'
+import { Modal } from '@/components/ui'
 import { useAuth } from '@/lib/auth'
+import { useResetPassword } from '@/api/auth'
 import { ApiError } from '@/lib/api'
 
 const schema = z.object({
@@ -22,8 +24,39 @@ export function LoginPage() {
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
+
+  // Estado do fluxo "Esqueci minha senha" (modal inline).
+  const resetPassword = useResetPassword()
+  const [forgotOpen, setForgotOpen] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotError, setForgotError] = useState<string | null>(null)
+  const [forgotDone, setForgotDone] = useState(false)
+
+  function openForgot() {
+    // Aproveita o e-mail já digitado no formulário de login, se houver.
+    setForgotEmail(getValues('email') ?? '')
+    setForgotError(null)
+    setForgotDone(false)
+    setForgotOpen(true)
+  }
+
+  async function submitForgot() {
+    const email = forgotEmail.trim()
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setForgotError('Informe um e-mail válido.')
+      return
+    }
+    setForgotError(null)
+    try {
+      await resetPassword.mutateAsync(email)
+      setForgotDone(true)
+    } catch {
+      setForgotError('Não foi possível redefinir a senha agora. Verifique sua conexão e tente novamente.')
+    }
+  }
 
   if (status === 'authenticated') return <Navigate to="/" replace />
 
@@ -179,7 +212,10 @@ export function LoginPage() {
             <div style={{ textAlign: 'right', marginTop: 8 }}>
               <a
                 href="#"
-                onClick={(e) => e.preventDefault()}
+                onClick={(e) => {
+                  e.preventDefault()
+                  openForgot()
+                }}
                 style={{ fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none' }}
               >
                 Esqueci minha senha
@@ -221,6 +257,51 @@ export function LoginPage() {
           </div>
         </form>
       </div>
+
+      {/* Reset provisório: sem fluxo de e-mail, a senha passa a ser "admin" (decisão do PO). */}
+      <Modal
+        open={forgotOpen}
+        onClose={() => setForgotOpen(false)}
+        width={440}
+        title="Esqueci minha senha"
+        subtitle="Redefinição com senha provisória"
+        footer={
+          forgotDone ? (
+            <Button variant="primary" onClick={() => setForgotOpen(false)}>Fechar</Button>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => setForgotOpen(false)} disabled={resetPassword.isPending}>
+                Cancelar
+              </Button>
+              <Button variant="primary" onClick={submitForgot} disabled={resetPassword.isPending}>
+                {resetPassword.isPending ? 'Redefinindo…' : 'Redefinir senha'}
+              </Button>
+            </>
+          )
+        }
+      >
+        {forgotDone ? (
+          <Alert tone="success" title="Solicitação processada.">
+            Se o e-mail existir na plataforma, a senha foi redefinida para a senha provisória
+            "admin". Use-a para entrar e troque-a assim que possível.
+          </Alert>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: 0 }}>
+              Informe o e-mail da sua conta. A senha será redefinida para a senha provisória
+              "admin", que você deve trocar após o acesso.
+            </p>
+            <Input
+              label="E-mail"
+              type="email"
+              placeholder="nome@empresa.com.br"
+              value={forgotEmail}
+              error={forgotError ?? undefined}
+              onChange={(e) => setForgotEmail(e.target.value)}
+            />
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

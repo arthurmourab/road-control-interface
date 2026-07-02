@@ -1,5 +1,7 @@
-// Topbar: recolher menu, notificações e menu do usuário (com sair).
+// Topbar: recolher menu, notificações e menu do usuário (perfil + sair).
+// Clicar no nome/avatar navega para o perfil; o chevron abre o menu.
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Avatar, Icon, IconButton } from '@/components/ds'
 import { ROLE_LABELS } from '@/types/enums'
 import { useAuth } from '@/lib/auth'
@@ -12,6 +14,7 @@ export function Topbar({
   onToggleCollapse: () => void
 }) {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
   const [menu, setMenu] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -69,36 +72,71 @@ export function Topbar({
       </IconButton>
 
       <div ref={ref} style={{ position: 'relative' }}>
-        <button
-          type="button"
-          onClick={() => setMenu((m) => !m)}
-          onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-sunken)')}
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = menu ? 'var(--surface-sunken)' : 'transparent')
-          }
+        <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 11,
-            padding: '5px 8px 5px 6px',
             border: '1px solid var(--border-subtle)',
             borderRadius: 'var(--radius-pill)',
-            background: menu ? 'var(--surface-sunken)' : 'transparent',
-            cursor: 'pointer',
-            transition: 'background 120ms',
+            overflow: 'hidden',
           }}
         >
-          <Avatar name={fullName} tone={tone} size="sm" />
-          <span style={{ textAlign: 'left', lineHeight: 1.2 }}>
-            <span style={{ display: 'block', fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)' }}>
-              {fullName}
+          {/* Nome/avatar: navega para o perfil */}
+          <button
+            type="button"
+            title="Meu perfil"
+            onClick={() => {
+              setMenu(false)
+              navigate('/profile')
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-sunken)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 11,
+              padding: '5px 10px 5px 6px',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-sans)',
+              transition: 'background 120ms',
+            }}
+          >
+            <Avatar name={fullName} tone={tone} size="sm" />
+            <span style={{ textAlign: 'left', lineHeight: 1.2 }}>
+              <span style={{ display: 'block', fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)' }}>
+                {fullName}
+              </span>
+              <span style={{ display: 'block', fontSize: 11.5, color: 'var(--text-secondary)' }}>
+                {roleLabel}
+              </span>
             </span>
-            <span style={{ display: 'block', fontSize: 11.5, color: 'var(--text-secondary)' }}>
-              {roleLabel}
-            </span>
-          </span>
-          <Icon name="chevron-down" size={16} color="var(--text-muted)" style={{ marginRight: 2 }} />
-        </button>
+          </button>
+          {/* Chevron: abre o menu (perfil + sair) */}
+          <button
+            type="button"
+            aria-label="Abrir menu do usuário"
+            onClick={() => setMenu((m) => !m)}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-sunken)')}
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = menu ? 'var(--surface-sunken)' : 'transparent')
+            }
+            style={{
+              display: 'grid',
+              placeItems: 'center',
+              alignSelf: 'stretch',
+              padding: '0 8px 0 6px',
+              border: 'none',
+              borderLeft: '1px solid var(--border-subtle)',
+              background: menu ? 'var(--surface-sunken)' : 'transparent',
+              cursor: 'pointer',
+              transition: 'background 120ms',
+            }}
+          >
+            <Icon name="chevron-down" size={16} color="var(--text-muted)" />
+          </button>
+        </div>
 
         {menu && (
           <div
@@ -132,6 +170,35 @@ export function Topbar({
               </div>
             </div>
             <div style={{ padding: '6px 10px 10px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenu(false)
+                  navigate('/profile')
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-sunken)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  width: '100%',
+                  padding: '9px 8px',
+                  border: 'none',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                  color: 'var(--text-primary)',
+                  transition: 'background 120ms',
+                }}
+              >
+                <Icon name="user-round" size={17} color="var(--text-strong)" />
+                Meu perfil
+              </button>
               <button
                 type="button"
                 onClick={() => {

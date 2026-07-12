@@ -14,8 +14,10 @@ padrões aqui descritos.
 Painel web do RoadControl: software de controle de abastecimento de frotas que atua como ponte
 entre organizações e postos parceiros. A interface atende **três personas** (papéis do backend):
 **SystemAdmin** (administra a plataforma), **OrganizationAdmin** (gestor de frota) e **Driver**
-(motorista, que registra abastecimentos). O papel `GasStationAttendant` existe no backend mas
-não tem telas no MVP. A linguagem da interface é **português (pt-BR)**.
+(motorista, que registra abastecimentos). O papel `GasStationAttendant` (Frentista) pode ser
+criado pelo admin e tem uma **experiência mínima**: home própria em `/attendant`
+(`features/attendant`) com aviso de "em desenvolvimento" — as funcionalidades do papel ainda
+não existem. A linguagem da interface é **português (pt-BR)**.
 
 ---
 

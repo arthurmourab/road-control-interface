@@ -1,6 +1,7 @@
 // Formulário de criação de usuário. Compartilhado:
 // - escopo "fleet" (gestor): cria motorista na própria organização (papel fixo).
-// - escopo "admin": escolhe papel e organização (obrigatória, exceto para admin).
+// - escopo "admin": escolhe papel; organização obrigatória para gestor/motorista,
+//   inexistente para SystemAdmin e Frentista (que pertence a um posto, vínculo futuro).
 import { useEffect, useState } from 'react'
 import { Input, Select } from '@/components/ds'
 import { Modal, toast } from '@/components/ui'
@@ -13,10 +14,11 @@ import { ApiError } from '@/lib/api'
 
 type UserFormScope = 'fleet' | 'admin'
 
-// Papéis que o admin pode criar pela interface (Frentista fora do escopo).
+// Papéis que o admin pode criar pela interface.
 const ADMIN_ROLE_OPTIONS: { value: Role; label: string }[] = [
   { value: 'OrganizationAdmin', label: ROLE_LABELS.OrganizationAdmin },
   { value: 'Driver', label: ROLE_LABELS.Driver },
+  { value: 'GasStationAttendant', label: ROLE_LABELS.GasStationAttendant },
   { value: 'SystemAdmin', label: ROLE_LABELS.SystemAdmin },
 ]
 
@@ -63,8 +65,11 @@ export function UserForm({
   }, [open, isAdmin])
 
   const set = (k: keyof FormState, v: string) => setF((s) => ({ ...s, [k]: v }))
-  // Organização é exigida para papéis ligados a uma org (todos menos SystemAdmin).
-  const needsOrg = isAdmin && f.role !== '' && f.role !== 'SystemAdmin'
+  // Organização é exigida para papéis ligados a uma org (gestor e motorista).
+  // Frentista pertence a um posto (vínculo futuro no backend) — sem organização;
+  // SystemAdmin é da plataforma — também sem organização.
+  const isAttendant = f.role === 'GasStationAttendant'
+  const needsOrg = isAdmin && (f.role === 'OrganizationAdmin' || f.role === 'Driver')
   const orgOpts = (orgsQuery.data?.results ?? [])
     .filter((o) => o.isActive)
     .map((o) => ({ value: String(o.id), label: o.name }))
@@ -82,10 +87,11 @@ export function UserForm({
 
     const role: Role = isAdmin ? (f.role as Role) : 'Driver'
     // Gestor cria sempre na própria organização; admin usa a selecionada.
+    // SystemAdmin e Frentista não têm organização (campo oculto para eles).
     const organizationId = isAdmin
-      ? role === 'SystemAdmin'
-        ? null
-        : Number(f.org)
+      ? needsOrg
+        ? Number(f.org)
+        : null
       : (user?.organizationId ?? null)
 
     try {
@@ -157,6 +163,12 @@ export function UserForm({
         {isAdmin && needsOrg && (
           <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
             A organização é obrigatória para papéis que pertencem a uma empresa.
+          </div>
+        )}
+        {isAdmin && isAttendant && (
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+            O frentista não pertence a uma organização; o vínculo com o posto parceiro será
+            configurado em uma etapa futura.
           </div>
         )}
       </div>

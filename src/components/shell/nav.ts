@@ -25,8 +25,8 @@ export const NAV: Record<Role, NavItem[]> = {
     { to: '/driver/register', label: 'Registrar abastecimento', icon: 'fuel' },
     { to: '/driver/fleet', label: 'Frota', icon: 'truck' },
   ],
-  // Frentista não tem telas no MVP — cai no redirecionamento padrão.
-  GasStationAttendant: [],
+  // Frentista: experiência mínima — só a home ("em desenvolvimento").
+  GasStationAttendant: [{ to: '/attendant', label: 'Posto', icon: 'fuel' }],
 }
 
 // Tela inicial de cada papel após o login.
@@ -34,5 +34,5 @@ export const DEFAULT_ROUTE: Record<Role, string> = {
   SystemAdmin: '/admin',
   OrganizationAdmin: '/fleet',
   Driver: '/driver',
-  GasStationAttendant: '/driver',
+  GasStationAttendant: '/attendant',
 }

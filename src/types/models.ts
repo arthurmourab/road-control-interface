@@ -26,6 +26,7 @@ export interface User {
   isActive: boolean
   role: Role
   organizationId: number | null
+  gasStationId: number | null
 }
 
 export interface NewUser {
@@ -34,7 +35,11 @@ export interface NewUser {
   email: string
   password: string
   roleId: number
+  // Vínculos: org para gestor de frota/motorista; posto para gestor do posto/
+  // frentista; nunca os dois. GasStationAdmin criando pode omitir gasStationId
+  // (o backend assume o posto do chamador).
   organizationId?: number | null
+  gasStationId?: number | null
 }
 
 // ---- Organização ----

@@ -14,10 +14,12 @@ padrões aqui descritos.
 Painel web do RoadControl: software de controle de abastecimento de frotas que atua como ponte
 entre organizações e postos parceiros. A interface atende **três personas** (papéis do backend):
 **SystemAdmin** (administra a plataforma), **OrganizationAdmin** (gestor de frota) e **Driver**
-(motorista, que registra abastecimentos). O papel `GasStationAttendant` (Frentista) pode ser
-criado pelo admin e tem uma **experiência mínima**: home própria em `/attendant`
-(`features/attendant`) com aviso de "em desenvolvimento" — as funcionalidades do papel ainda
-não existem. A linguagem da interface é **português (pt-BR)**.
+(motorista, que registra abastecimentos). O papel `GasStationAdmin` (Gestor do posto) tem
+visão própria em `/station` (`features/station`): painel e gestão da equipe do próprio posto
+(criar frentistas/gestores, ativar/desativar frentistas). O papel `GasStationAttendant`
+(Frentista) pode ser criado pelo admin ou pelo gestor do posto e tem uma **experiência
+mínima**: home própria em `/attendant` (`features/attendant`) com aviso de "em
+desenvolvimento". A linguagem da interface é **português (pt-BR)**.
 
 ---
 
@@ -160,8 +162,8 @@ npm run preview  # serve o build de produção localmente
   código. Se o backend liberar a listagem para esses papéis, trocar a degradação por um `Select`.
 - **`NewUserDto.RoleId`** precisa do id numérico do papel, mas não há endpoint que liste papéis.
   O mapa `ROLE_ID` em `src/types/enums.ts` assume a ordem do `IDENTITY` (`SystemAdmin=1`,
-  `OrganizationAdmin=2`, `Driver=3`, `GasStationAttendant=4`). Se a tabela `rc.Roles` mudar,
-  ajuste o mapa.
+  `OrganizationAdmin=2`, `Driver=3`, `GasStationAttendant=4`, `GasStationAdmin=5`). Se a
+  tabela `rc.Roles` mudar, ajuste o mapa.
 - **CORS:** em desenvolvimento o backend já libera qualquer origem loopback (política `Frontend`
   no `Program.cs`); ainda assim usamos o proxy do Vite por causa do problema do redirect
   http→https descrito acima. Em produção a origem do front precisa ser adicionada em

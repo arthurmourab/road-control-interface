@@ -53,12 +53,14 @@ export type Role =
   | 'OrganizationAdmin'
   | 'Driver'
   | 'GasStationAttendant'
+  | 'GasStationAdmin'
 
 export const ROLE_LABELS: Record<Role, string> = {
   SystemAdmin: 'Administrador da Plataforma',
   OrganizationAdmin: 'Gestor de Frota',
   Driver: 'Motorista',
   GasStationAttendant: 'Frentista',
+  GasStationAdmin: 'Gestor do posto',
 }
 
 // Mapa role-name -> RoleId (BIGINT IDENTITY do banco).
@@ -70,4 +72,5 @@ export const ROLE_ID: Record<Role, number> = {
   OrganizationAdmin: 2,
   Driver: 3,
   GasStationAttendant: 4,
+  GasStationAdmin: 5,
 }

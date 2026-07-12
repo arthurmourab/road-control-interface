@@ -8,9 +8,11 @@ const BASE = '/v1/user'
 export interface UserListParams {
   currentPage?: number
   pageSize?: number
-  // SystemAdmin pode filtrar por organização; demais papéis são restringidos
-  // pelo próprio token no backend.
+  // SystemAdmin pode filtrar por organização ou por posto; demais papéis são
+  // restringidos pelo próprio token no backend (GasStationAdmin recebe apenas
+  // os usuários do próprio posto).
   organizationId?: number | null
+  gasStationId?: number | null
 }
 
 export const userKeys = {

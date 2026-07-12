@@ -27,6 +27,10 @@ export const NAV: Record<Role, NavItem[]> = {
   ],
   // Frentista: experiência mínima — só a home ("em desenvolvimento").
   GasStationAttendant: [{ to: '/attendant', label: 'Posto', icon: 'fuel' }],
+  GasStationAdmin: [
+    { to: '/station', label: 'Painel do posto', icon: 'layout-dashboard' },
+    { to: '/station/team', label: 'Equipe do posto', icon: 'users' },
+  ],
 }
 
 // Tela inicial de cada papel após o login.
@@ -35,4 +39,5 @@ export const DEFAULT_ROUTE: Record<Role, string> = {
   OrganizationAdmin: '/fleet',
   Driver: '/driver',
   GasStationAttendant: '/attendant',
+  GasStationAdmin: '/station',
 }

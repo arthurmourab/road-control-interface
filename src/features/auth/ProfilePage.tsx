@@ -41,6 +41,9 @@ export function ProfilePage() {
           {user.organizationId !== null && (
             <Field label="Organização" mono>#{user.organizationId}</Field>
           )}
+          {user.gasStationId !== null && (
+            <Field label="Posto" mono>#{user.gasStationId}</Field>
+          )}
           <Field label="Membro desde" mono>{dateBR(user.createdAt)}</Field>
         </DetailGrid>
       </Card>

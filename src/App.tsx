@@ -15,6 +15,8 @@ import { VehiclesList } from '@/features/fleet/VehiclesList'
 import { DriversList } from '@/features/fleet/DriversList'
 import { MyRefuels, DriverRegister, DriverFleet } from '@/features/driver'
 import { AttendantHome } from '@/features/attendant/AttendantHome'
+import { StationDashboard } from '@/features/station/StationDashboard'
+import { StationTeam } from '@/features/station/StationTeam'
 
 export function App() {
   return (
@@ -55,6 +57,12 @@ export function App() {
           {/* Frentista: home mínima enquanto as funcionalidades não existem */}
           <Route element={<RequireRole roles={['GasStationAttendant']} />}>
             <Route path="attendant" element={<AttendantHome />} />
+          </Route>
+
+          {/* Gestor do posto */}
+          <Route element={<RequireRole roles={['GasStationAdmin']} />}>
+            <Route path="station" element={<StationDashboard />} />
+            <Route path="station/team" element={<StationTeam />} />
           </Route>
         </Route>
       </Route>

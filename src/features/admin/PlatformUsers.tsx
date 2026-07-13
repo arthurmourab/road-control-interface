@@ -13,6 +13,7 @@ import {
 } from '@/components/ui'
 import { useSetUserStatus, useUsers } from '@/api/users'
 import { useOrganizations } from '@/api/organizations'
+import { useGasStations } from '@/api/gasStations'
 import { UserForm } from '@/features/fleet/UserForm'
 import type { User } from '@/types/models'
 import { tableState } from '@/lib/tableState'
@@ -29,11 +30,16 @@ export function PlatformUsers() {
 
   const query = useUsers({ pageSize: 1000, organizationId: orgFilter ? Number(orgFilter) : null })
   const orgsQuery = useOrganizations({ pageSize: 1000 })
+  const stationsQuery = useGasStations({ pageSize: 1000 })
   const setStatus = useSetUserStatus()
 
   const orgsById = useMemo(
     () => new Map((orgsQuery.data?.results ?? []).map((o) => [o.id, o.name])),
     [orgsQuery.data],
+  )
+  const stationsById = useMemo(
+    () => new Map((stationsQuery.data?.results ?? []).map((s) => [s.id, s.name])),
+    [stationsQuery.data],
   )
 
   const all = useMemo(() => query.data?.results ?? [], [query.data])
@@ -78,6 +84,7 @@ export function PlatformUsers() {
     { key: 'email', header: 'E-mail', render: (u) => <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{u.email}</span> },
     { key: 'role', header: 'Papel', render: (u) => <RoleBadge role={u.role} /> },
     { key: 'org', header: 'Organização', render: (u) => <span style={{ fontSize: 14 }}>{u.organizationId ? orgsById.get(u.organizationId) ?? `#${u.organizationId}` : '—'}</span> },
+    { key: 'station', header: 'Posto', render: (u) => <span style={{ fontSize: 14 }}>{u.gasStationId ? stationsById.get(u.gasStationId) ?? `#${u.gasStationId}` : '—'}</span> },
     { key: 'status', header: 'Status', render: (u) => <StatusBadge active={u.isActive} /> },
     {
       key: 'actions',

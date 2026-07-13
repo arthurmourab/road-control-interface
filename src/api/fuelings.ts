@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import type { PagedResult } from '@/types/api'
-import type { Fueling, NewFueling } from '@/types/models'
+import type { ConfirmationCode, Fueling, NewFueling } from '@/types/models'
 
 const BASE = '/v1/fueling'
 
@@ -18,6 +18,11 @@ export interface FuelingListParams {
 export const fuelingKeys = {
   all: ['fuelings'] as const,
   list: (params: FuelingListParams) => ['fuelings', 'list', params] as const,
+  confirmationCode: ['fuelings', 'confirmation-code'] as const,
+}
+
+function getConfirmationCode() {
+  return api.get<ConfirmationCode>(`${BASE}/confirmation-code`)
 }
 
 // Remove chaves nulas/vazias para não enviar query params desnecessários.
@@ -42,6 +47,28 @@ export function useFuelings(params: FuelingListParams = {}, options?: { enabled?
     queryKey: fuelingKeys.list(params),
     queryFn: () => getFuelings(params),
     enabled: options?.enabled ?? true,
+  })
+}
+
+// Código de confirmação do frentista. O backend renova a cada 60s; refazemos o
+// GET quando o código expira usando refetchInterval derivado de secondsRemaining
+// (com piso de segurança para não martelar o backend em caso de resposta estranha).
+export function useConfirmationCode(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: fuelingKeys.confirmationCode,
+    queryFn: getConfirmationCode,
+    enabled: options?.enabled ?? true,
+    retry: false,
+    // Sem cache reaproveitável entre montagens — o código é efêmero.
+    gcTime: 0,
+    staleTime: 0,
+    refetchInterval: (query) => {
+      const secs = query.state.data?.secondsRemaining
+      if (secs === undefined) return 60_000
+      // Renova logo após expirar; mínimo de 5s para não entrar em loop apertado.
+      return Math.max(secs, 5) * 1000
+    },
+    refetchIntervalInBackground: true,
   })
 }
 

@@ -21,6 +21,7 @@ interface FormState {
   ppl: string
   mileage: string
   fueledAt: string
+  code: string
 }
 
 function nowLocal(): string {
@@ -45,6 +46,7 @@ export function RegisterRefuel({ scope = 'fleet' }: { scope?: RefuelScope }) {
     ppl: '',
     mileage: '',
     fueledAt: nowLocal(),
+    code: '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const set = (k: keyof FormState, v: string) => setF((s) => ({ ...s, [k]: v }))
@@ -78,6 +80,7 @@ export function RegisterRefuel({ scope = 'fleet' }: { scope?: RefuelScope }) {
     else if (selectedVehicle && odoN < minOdo)
       e.mileage = `Não pode ser menor que a atual do veículo (${km(minOdo)}).`
     if (!f.fueledAt) e.fueledAt = 'Informe a data e hora.'
+    if (f.code.replace(/\D/g, '').length !== 6) e.code = 'Informe os 6 dígitos do código.'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -97,6 +100,7 @@ export function RegisterRefuel({ scope = 'fleet' }: { scope?: RefuelScope }) {
         pricePerLiter: pplN,
         mileage: Math.round(parseDecimal(f.mileage)),
         fueledAt: f.fueledAt,
+        confirmationCode: f.code.replace(/\D/g, ''),
       })
       toast({
         tone: 'success',
@@ -105,11 +109,18 @@ export function RegisterRefuel({ scope = 'fleet' }: { scope?: RefuelScope }) {
       })
       navigate(isDriver ? '/driver' : '/fleet/refuels')
     } catch (err) {
-      toast({
-        tone: 'error',
-        title: 'Não foi possível registrar.',
-        body: err instanceof ApiError ? err.message : undefined,
-      })
+      // 422: código inválido/expirado — feedback no campo do código, além do toast.
+      if (err instanceof ApiError && err.status === 422) {
+        const msg = 'Código inválido ou expirado. Peça um novo ao frentista.'
+        setErrors((prev) => ({ ...prev, code: msg }))
+        toast({ tone: 'error', title: 'Código não confirmado.', body: msg })
+      } else {
+        toast({
+          tone: 'error',
+          title: 'Não foi possível registrar.',
+          body: err instanceof ApiError ? err.message : undefined,
+        })
+      }
     }
   }
 
@@ -132,26 +143,21 @@ export function RegisterRefuel({ scope = 'fleet' }: { scope?: RefuelScope }) {
             error={errors.vehicle}
             onChange={(e) => set('vehicle', e.target.value)}
           />
-          {lookups.stationsAvailable ? (
-            <Select
-              label="Posto"
-              placeholder="Selecione"
-              options={stationOpts}
-              value={f.station}
-              error={errors.station}
-              onChange={(e) => set('station', e.target.value)}
-            />
-          ) : (
-            <Input
-              label="Código do posto"
-              numeric
-              placeholder="Ex.: 12"
-              value={f.station}
-              error={errors.station}
-              hint="A lista de postos não está disponível para o seu perfil. Informe o código."
-              onChange={(e) => set('station', e.target.value.replace(/\D/g, ''))}
-            />
-          )}
+          <Select
+            label="Posto"
+            placeholder="Selecione"
+            options={stationOpts}
+            value={f.station}
+            error={errors.station}
+            hint={
+              lookups.stationsError
+                ? 'Não foi possível carregar os postos. Tente novamente.'
+                : stationOpts.length === 0 && !lookups.isLoading
+                  ? 'Nenhum posto disponível para a sua organização.'
+                  : undefined
+            }
+            onChange={(e) => set('station', e.target.value)}
+          />
           {!isDriver && (
             <Select
               label="Motorista"
@@ -245,6 +251,20 @@ export function RegisterRefuel({ scope = 'fleet' }: { scope?: RefuelScope }) {
             value={f.fueledAt}
             error={errors.fueledAt}
             onChange={(e) => set('fueledAt', e.target.value)}
+          />
+        </div>
+
+        <div style={{ height: 1, background: 'var(--border-subtle)' }} />
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+          <Input
+            label="Código de confirmação"
+            numeric
+            placeholder="000000"
+            value={f.code}
+            error={errors.code}
+            hint="Código de 6 dígitos gerado pelo frentista. Expira em segundos — peça na hora."
+            onChange={(e) => set('code', e.target.value.replace(/\D/g, '').slice(0, 6))}
           />
         </div>
       </Card>

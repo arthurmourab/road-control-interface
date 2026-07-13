@@ -25,8 +25,11 @@ export const NAV: Record<Role, NavItem[]> = {
     { to: '/driver/register', label: 'Registrar abastecimento', icon: 'fuel' },
     { to: '/driver/fleet', label: 'Frota', icon: 'truck' },
   ],
-  // Frentista: experiência mínima — só a home ("em desenvolvimento").
-  GasStationAttendant: [{ to: '/attendant', label: 'Posto', icon: 'fuel' }],
+  // Frentista: código de confirmação + abastecimentos que ele autorizou.
+  GasStationAttendant: [
+    { to: '/attendant', label: 'Código', icon: 'fuel' },
+    { to: '/attendant/fuelings', label: 'Abastecimentos', icon: 'receipt-text' },
+  ],
   GasStationAdmin: [
     { to: '/station', label: 'Painel do posto', icon: 'layout-dashboard' },
     { to: '/station/team', label: 'Equipe do posto', icon: 'users' },

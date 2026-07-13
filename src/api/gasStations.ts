@@ -19,10 +19,17 @@ export const gasStationKeys = {
   list: (params: GasStationListParams) =>
     ['gasStations', 'list', params] as const,
   detail: (id: number) => ['gasStations', 'detail', id] as const,
+  available: ['gasStations', 'available'] as const,
 }
 
 function getGasStations(params: GasStationListParams) {
   return api.get<PagedResult<GasStation>>(BASE, { params })
+}
+
+// Postos ativos que atendem a org do chamador (globais + vinculados).
+// Disponível a Driver/OrganizationAdmin/SystemAdmin; lista simples (não paginada).
+function getAvailableGasStations() {
+  return api.get<GasStation[]>(`${BASE}/available`)
 }
 
 function createGasStation(payload: NewGasStation) {
@@ -50,6 +57,16 @@ export function useGasStations(
   return useQuery({
     queryKey: gasStationKeys.list(params),
     queryFn: () => getGasStations(params),
+    enabled: options?.enabled ?? true,
+    retry: false,
+  })
+}
+
+// Postos disponíveis para o escopo do chamador (registro de abastecimento).
+export function useAvailableGasStations(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: gasStationKeys.available,
+    queryFn: getAvailableGasStations,
     enabled: options?.enabled ?? true,
     retry: false,
   })

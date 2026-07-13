@@ -26,7 +26,9 @@ export interface User {
   isActive: boolean
   role: Role
   organizationId: number | null
+  organizationName: string | null
   gasStationId: number | null
+  gasStationName: string | null
 }
 
 export interface NewUser {
@@ -151,6 +153,7 @@ export interface Fueling {
   totalAmount: number
   mileage: number
   fueledAt: string
+  attendantId: number | null
 }
 
 export interface NewFueling {
@@ -162,4 +165,13 @@ export interface NewFueling {
   pricePerLiter: number
   mileage: number
   fueledAt: string
+  // Código de 6 dígitos gerado pelo frentista (obrigatório no backend).
+  confirmationCode: string
+}
+
+// ---- Código de confirmação de abastecimento (só GasStationAttendant) ----
+export interface ConfirmationCode {
+  code: string
+  expiresAt: string
+  secondsRemaining: number
 }

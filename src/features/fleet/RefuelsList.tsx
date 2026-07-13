@@ -271,6 +271,7 @@ function RefuelDetailModal({
         <Field label="Preço por litro" mono>{pricePerL(refuel.pricePerLiter)}</Field>
         <Field label="Total" mono>{brl(refuel.totalAmount)}</Field>
         <Field label="Quilometragem" mono>{km(refuel.mileage)}</Field>
+        <Field label="Frentista" mono>{refuel.attendantId !== null ? `#${refuel.attendantId}` : '—'}</Field>
         <Field label="Data e hora" mono full>{dateTimeBR(refuel.fueledAt)}</Field>
       </DetailGrid>
     </Modal>

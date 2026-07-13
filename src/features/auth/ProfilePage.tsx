@@ -39,10 +39,14 @@ export function ProfilePage() {
           <Field label="E-mail" full>{user.email}</Field>
           <Field label="Papel">{ROLE_LABELS[user.role]}</Field>
           {user.organizationId !== null && (
-            <Field label="Organização" mono>#{user.organizationId}</Field>
+            <Field label="Organização" mono={!user.organizationName}>
+              {user.organizationName ?? `#${user.organizationId}`}
+            </Field>
           )}
           {user.gasStationId !== null && (
-            <Field label="Posto" mono>#{user.gasStationId}</Field>
+            <Field label="Posto" mono={!user.gasStationName}>
+              {user.gasStationName ?? `#${user.gasStationId}`}
+            </Field>
           )}
           <Field label="Membro desde" mono>{dateBR(user.createdAt)}</Field>
         </DetailGrid>
